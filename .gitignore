@@ -19,3 +19,13 @@
 
 # Go workspace file
 go.work
+
+# Excluded folders
+bin/
+
+# Misc
+.DS_Store
+
+# Temporarily exclude these files
+Dockerfile
+docker-compose.yml
