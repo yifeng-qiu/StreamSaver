@@ -1,34 +1,25 @@
-# 🎥 StreamSaver
-Conveniently download your favorite videos with **StreamSaver**. 
+# StreamSaver
+**StreamSaver** helps you download your favorite video for offline viewing by simply sharing the video through a companion app.
 
 ## 🌟 Features
 - Written in Go and powered by yt-dlp and ffmpeg. This backend server is designed to robustly handle video download requests.
 - Companion iOS App: Share a video link directly from your browser or YouTube, and the backend server takes care of the rest.
 - Progress Tracking: Always be in the loop! Track download progress in real-time directly from the companion app.
-- In-App playback: No need to go into your server to find the downloaded videos. Play your downloaded videos directly from within the app.
+- In-App playback: No need to look for downloaded videos. Play your downloaded videos directly from within the app.
 
 ## 🚀 Getting Started
 
 ### Prerequisite
-- A folder with sufficient capacity and R/W permissions for downloaded videos
+- A Docker installation
+- A folder with sufficient capacity and R/W permissions for downloaded videos and converted streaming content.
 ### Using Docker
-Using Docker to set up the server is the easiest. 
+It is very easy to bring up the server using Docker. Everything is preconfigured by Dockerfile and docker-compose.yml.
 - Clone this repository
-- Navigate to the project folder: cd StreamSaver
-- Edit docker-compose.yml and change the volume mapping as needed. 
+- Navigate to the project folder
+- Edit docker-compose.yml and change volume mapping and port mapping as needed. By default, port **1718** is used for StreamSaver and port **1719** is for nginx streaming server. 
 - Build and run the Docker image: `docker-compose up -d --build`
 
-### Without Docker
-Setup StreamSaver Server
-Clone this repository: git clone https://github.com/yourusername/StreamSaver.git
-Navigate to the project folder: cd StreamSaver
-Run: go build to compile the project.
-Start the server: ./StreamSaver
-Install the Companion App
-Follow steps from the Docker section
-
-
-- Install and configure the companion App. See separate instructions. 
-- Share a video link using the app's share extension.
-- Wait for the download to complete.
-- Play and enjoy your video!
+## Dependencies
+- gorilla mux
+- yt-dlp and ffmpeg for download and media file manipulation
+- nginx for streaming hls content
