@@ -1,5 +1,5 @@
 # StreamSaver
-**StreamSaver** helps you download your favorite video for offline viewing by simply sharing the video through a companion app.
+**StreamSaver** helps you download your favorite video for offline viewing by simply sharing the video through the share extension feature installed by a companion iOS App.
 
 ## 🌟 Features
 - Written in Go and powered by yt-dlp and ffmpeg. This backend server is designed to robustly handle video download requests.
