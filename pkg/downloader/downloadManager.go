@@ -5,6 +5,8 @@ import (
 	"net/url"
 )
 
+// DownloadManger maintains a map of Downloaders, a map of queues per domain, list of sessions and
+// a non-buffered channel as queue for ffmpeg instantiation
 type DownloadManager struct {
 	Downloaders    map[string]*Downloader
 	DownloadQueues map[string]chan bool // queue per domain for scheduling download sessions
@@ -12,6 +14,7 @@ type DownloadManager struct {
 	ffmpegQueue    chan bool // only allow one instance of ffmpeg
 }
 
+// NewDownloadManager returns an instance of DownloadManager
 func NewDownloadManager() DownloadManager {
 	return DownloadManager{
 		Downloaders:    make(map[string]*Downloader),
@@ -21,9 +24,8 @@ func NewDownloadManager() DownloadManager {
 	}
 }
 
-var sessionLock chan int = make(chan int)
-var downloaderLock chan int = make(chan int)
-
+// postSession is a function type that takes a pointer to a Session.
+// It is defined this way to avoid circular imports between packages.
 type postSession func(session *Session)
 
 func (dm *DownloadManager) PostSession(session *Session) {
@@ -31,6 +33,7 @@ func (dm *DownloadManager) PostSession(session *Session) {
 
 }
 
+// remove a session from the session list.
 func (dm *DownloadManager) removeSession(shaKey string) {
 	var idx int = -1
 	for idx = range dm.SessionsInfo {
@@ -47,6 +50,7 @@ func (dm *DownloadManager) removeDownloader(shaKey string) {
 	delete(dm.Downloaders, shaKey)
 }
 
+// Initiate a new downloader or resume an existing one.
 func (dm *DownloadManager) NewDownload(shaKey string, urlstring string) {
 	downloader, ok := dm.Downloaders[shaKey]
 	if ok {
@@ -80,6 +84,8 @@ func (dm *DownloadManager) NewDownload(shaKey string, urlstring string) {
 	}
 }
 
+// Locate the downloader associated with a given shaKey.
+// Return nil if not found
 func (dm *DownloadManager) FindDownloader(shaKey string) *Downloader {
 	if downloader, ok := dm.Downloaders[shaKey]; ok {
 		return downloader
@@ -89,6 +95,8 @@ func (dm *DownloadManager) FindDownloader(shaKey string) *Downloader {
 	}
 }
 
+// Cancel an active download and remove it from the list
+// Return true if the removal was successful, false if otherwise
 func (dm *DownloadManager) CancelDownload(shaKey string) bool {
 	// if the downloader is present and its sessionPID is known issue command and kill it
 	downloader := dm.FindDownloader(shaKey)

@@ -111,6 +111,8 @@ func (session *Session) GetSessionStatusString() string {
 
 func (s *Session) Parse(m string) error {
 	var err error = nil
+	fmt.Printf("DEBUG: yt-dlp returns %v\n", m)
+	fmt.Printf("DEBUG: current state %v\n", s.state)
 	switch s.state {
 	case STATE_WAIT:
 		if strings.HasPrefix(m, string(STDOUT_PLAYLIST_TITLE)) {
@@ -125,11 +127,11 @@ func (s *Session) Parse(m string) error {
 			s.state = STATE_NEW_VIDEO
 			s.IsPlaylist = false
 		} else {
-			err = errors.New("Download did not start")
+			err = errors.New("download did not start")
 		}
 	case STATE_PLAYLIST_TITLE:
 		if strings.Contains(m, string(STDOUT_PLAYLIST_SEQ)) {
-			reg, err := regexp.Compile("Downloading item (\\d+) of (\\d+)")
+			reg, err := regexp.Compile("dwnloading item (\\d+) of (\\d+)")
 			if err == nil {
 				match := reg.FindStringSubmatch(m)
 				if match != nil {
@@ -141,12 +143,12 @@ func (s *Session) Parse(m string) error {
 					}
 
 				} else {
-					err = errors.New("Failed to extract playlist sequence")
+					err = errors.New("failed to extract playlist sequence")
 				}
 			}
 			s.state = STATE_PLAYLIST_SEQ
 		} else {
-			err = errors.New("Did not get message announcing playlist sequence")
+			err = errors.New("did not get message announcing playlist sequence")
 		}
 
 	case STATE_PLAYLIST_SEQ:
@@ -156,7 +158,7 @@ func (s *Session) Parse(m string) error {
 			s.addNewVideoToSession()
 			s.state = STATE_NEW_VIDEO
 		} else {
-			err = errors.New("Download did not start")
+			err = errors.New("download did not start")
 		}
 
 	case STATE_NEW_VIDEO:
@@ -168,7 +170,7 @@ func (s *Session) Parse(m string) error {
 		} else if strings.Contains(m, string(STDOUT_DOWNLOAD_RESUMING)) {
 			s.state = STATE_DOWNLOAD_RESUME
 		} else {
-			err = errors.New("Error when starting to download")
+			err = errors.New("error when starting to download")
 		}
 	case STATE_DOWNLOAD_RESUME:
 		if strings.Contains(m, string(STDOUT_DOWNLOAD_DESTINATION)) {
@@ -176,7 +178,7 @@ func (s *Session) Parse(m string) error {
 			fmt.Printf("Adding substream %d\n", s.currentVideo.currentSubstream.Index)
 			s.state = STATE_DOWNLOAD_START
 		} else {
-			err = errors.New("Error when starting to download")
+			err = errors.New("error when starting to download")
 		}
 	case STATE_DOWNLOAD_START:
 		if strings.Contains(m, string(STDOUT_DOWNLOAD_IN_PROGRESS)) {
@@ -191,7 +193,7 @@ func (s *Session) Parse(m string) error {
 			s.state = STATE_REMUX
 			s.currentVideo.Status = VIDEOSTATUS_REMUXING
 		} else {
-			err = errors.New("Failed to get progress bar")
+			err = errors.New("failed to get progress bar")
 		}
 
 	case STATE_DOWNLOAD_IN_PROGRESS:
@@ -200,7 +202,7 @@ func (s *Session) Parse(m string) error {
 		} else if strings.Contains(m, string(STDOUT_DOWNLOAD_COMPLETED)) {
 			s.state = STATE_DOWNLOAD_COMPLETE
 		} else {
-			err = errors.New("Did not complete download")
+			err = errors.New("did not complete download")
 		}
 	case STATE_DOWNLOAD_COMPLETE:
 		if strings.Contains(m, string(STDOUT_DOWNLOAD_DESTINATION)) ||
@@ -216,7 +218,7 @@ func (s *Session) Parse(m string) error {
 			s.state = STATE_REMUX
 			s.currentVideo.Status = VIDEOSTATUS_REMUXING
 		} else {
-			err = errors.New("Download completed but did not move to the next step")
+			err = errors.New("download completed but did not move to the next step")
 		}
 
 	case STATE_MERGE:
@@ -225,7 +227,7 @@ func (s *Session) Parse(m string) error {
 			s.state = STATE_REMUX
 			s.currentVideo.Status = VIDEOSTATUS_REMUXING
 		} else {
-			err = errors.New("Did not receive VideoRemuxer message")
+			err = errors.New("did not receive VideoRemuxer message")
 		}
 	case STATE_REMUX:
 		/*
@@ -241,20 +243,20 @@ func (s *Session) Parse(m string) error {
 			// Start HLS conversion on the last video
 			err := s.SetupHLSConversion()
 			if err != nil {
-				err = fmt.Errorf("Error when starting HLS conversion %w", err)
+				err = fmt.Errorf("error when starting HLS conversion %w", err)
 			}
 		} else if s.IsPlaylist && strings.Contains(m, string(STDOUT_PLAYLIST_COMPLETE)) {
 			s.GetFileSpecs()
 			s.state = STATE_HLS_CONVERSION
 			err := s.SetupHLSConversion()
 			if err != nil {
-				err = fmt.Errorf("Error when starting HLS conversion %w", err)
+				err = fmt.Errorf("error when starting HLS conversion %w", err)
 			}
 		} else {
-			err = errors.New("Extraneous stdout after Remux")
+			err = errors.New("extraneous stdout after Remux")
 		}
 	default:
-		err = errors.New("Illegal state!")
+		err = errors.New("illegal state")
 	}
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
@@ -312,17 +314,18 @@ func (s *Session) addNewVideoToSession() {
 
 }
 
+// StartHLSConversion invokes ffmpeg to convert any video into the hls format suitable for streaming
 func StartHLSConversion(input string, output string, video *Video, pid *int) error {
 	defer func() { *pid = -1 }()
 	if video == nil {
 		fmt.Println("The video does not exist")
-		return errors.New("The video does not exist")
+		return errors.New("the video does not exist")
 	}
 	cmd := exec.Command("ffmpeg", "-i", input, "-start_number", "0",
 		"-hls_time", "10", "-hls_list_size", "0", "-f", "hls", output, "-loglevel", "error")
 	err := cmd.Start()
 	if err != nil {
-		return fmt.Errorf("Error when starting ffmpeg %w", err)
+		return fmt.Errorf("error when starting ffmpeg %w", err)
 	} else {
 		*pid = cmd.Process.Pid
 	}
@@ -331,8 +334,8 @@ func StartHLSConversion(input string, output string, video *Video, pid *int) err
 
 	if err != nil {
 		video.Status = VIDEOSTATUS_ERROR
-		fmt.Printf("Error during HLS conversio %s", err.Error())
-		return fmt.Errorf("Error during HLS conversio %w", err)
+		fmt.Printf("error during HLS conversio %s", err.Error())
+		return fmt.Errorf("error during HLS conversio %w", err)
 	} else {
 		fmt.Printf("Conversion to HLS completed, stored at %s\n", output)
 		unescapedPath := strings.TrimPrefix(output, "/media/download")
@@ -349,12 +352,13 @@ func StartHLSConversion(input string, output string, video *Video, pid *int) err
 	}
 }
 
+// SetupHLSConversion prepares for ffmpeg conversion
 func (s *Session) SetupHLSConversion() error {
 	s.currentVideo.Status = VIDEOSTATUS_WAITING_FOR_CONVERSION
 	filename := filepath.Base(s.currentVideo.FileLocation)
 	hlsPath := strings.TrimRight(helper.SHAFromString(filename), "=")
 
-	newFolder := filepath.Join("/media/download/hls", hlsPath)
+	newFolder := filepath.Join("/media/hls", hlsPath)
 	os.Mkdir(newFolder, 0755)
 	hlsFilename := filepath.Join(newFolder, hlsPath+".m3u8")
 
@@ -374,6 +378,7 @@ func (s *Session) SetupHLSConversion() error {
 	return nil
 }
 
+// Extract playback duration using ffprobe
 func GetMediaPlaybackDuration(input string) string {
 	durationString := ""
 	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", input)
@@ -403,6 +408,7 @@ func GetMediaPlaybackDuration(input string) string {
 	return durationString
 }
 
+// Get media resolution using ffprobe
 func GetMediaResolution(input string) string {
 
 	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=s=x:p=0", input)

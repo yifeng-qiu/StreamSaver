@@ -11,6 +11,8 @@ import (
 	"github.com/yifeng-qiu/ytdlp_backend/pkg/helper"
 )
 
+// Downloader represents a structure responsible for managing and controlling
+// the downloading of resources.
 type Downloader struct {
 	shaKey          string
 	urlstring       string
@@ -22,14 +24,8 @@ type Downloader struct {
 	postSessionFunc postSession
 }
 
-func (d *Downloader) status() string {
-	if d.currentSession != nil {
-		return d.currentSession.GetSessionStatusString()
-	} else {
-		return ""
-	}
-}
-
+// Terminate a running downloader and kill the associated yt-dlp process
+// Returns true if successful, otherwise false
 func (d *Downloader) Terminate() bool {
 	fmt.Printf("DEBUG: received request to cancel job:%s \n", d.shaKey)
 	fmt.Printf("DEBUG: the session PID is :%d \n", d.sessionPID)
@@ -53,6 +49,8 @@ func (d *Downloader) Terminate() bool {
 	return ret
 }
 
+// Start a Downloader. The Downloader must wait until its assigned queue becomes available before
+// invoking yt-dlp. It must also wait for ffmpeg process to complete before returning
 func (d *Downloader) Start() {
 	go func() {
 		d.ffmpeg_wg = sync.WaitGroup{}
@@ -73,6 +71,7 @@ func (d *Downloader) Start() {
 	}()
 }
 
+// Launch a new yt-dlp process via shell command, capture its stdout and stderr output and parse.
 func (d *Downloader) ytdlp() {
 	defer func() { d.sessionPID = 0 }()
 

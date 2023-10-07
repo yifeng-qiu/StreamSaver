@@ -21,6 +21,7 @@ const (
 	VIDEOSTATUS_PAUSED                 VideoStatus = "Paused"
 )
 
+// Struct Video stores information related to one video
 type Video struct {
 	Index            int              `json:"id"`
 	Title            string           `json:"title"`
@@ -34,6 +35,7 @@ type Video struct {
 	Resolution       string           `json:"resolution"`
 }
 
+// Struct SubStreamInfo stores info related to substreams within one video, such as audio, video tracks
 type SubStreamInfo struct {
 	Index    int     `json:"id"`
 	Progress float64 `json:"progress"`

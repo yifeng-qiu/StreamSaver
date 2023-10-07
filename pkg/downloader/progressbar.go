@@ -34,6 +34,8 @@ var ProgressBarRegExps = map[string]*regexp.Regexp{
 	"eta":      regexp.MustCompile(eta),
 }
 
+// ParseProgressBar parses the progressbar outputs of yt-dlp and store parsed info in a ProgressBar stuct.
+// - ProgressBar: pointer to a ProgressBar struct
 func ParseProgressBar(from string) (*ProgressBar, error) {
 	p := ProgressBar{
 		Playlist:       "",
@@ -49,7 +51,7 @@ func ParseProgressBar(from string) (*ProgressBar, error) {
 	x := regexp.MustCompile(`\$\$__\$\$`).Split(from, -1)
 	// the returned slice of strings must have a length of 5
 	if len(x) < 5 {
-		return nil, errors.New("Invalid number of fields") // the string cannot be parsed correctly
+		return nil, errors.New("invalid number of fields") // the string cannot be parsed correctly
 	}
 	p.Playlist = x[0]
 	val, err := strconv.Atoi(x[1])
@@ -68,7 +70,7 @@ func ParseProgressBar(from string) (*ProgressBar, error) {
 
 	p.Title = x[3]
 	if len(p.Title) == 0 {
-		return nil, errors.New("Could not extract title")
+		return nil, errors.New("could not extract title")
 	}
 
 	// The remainder of the fields will not throw an error even if not parsed correctly
@@ -88,6 +90,7 @@ func ParseProgressBar(from string) (*ProgressBar, error) {
 	return &p, nil
 }
 
+// Helper function for copying info between two ProgressBar structs
 func (p *ProgressBar) CopyInto(into *ProgressBar) {
 
 	into.Playlist = p.Playlist
@@ -100,6 +103,7 @@ func (p *ProgressBar) CopyInto(into *ProgressBar) {
 	into.Eta = p.Eta
 }
 
+// Helper function for extracting information from a progressbar string.
 func findMatch(reg *regexp.Regexp, from string) string {
 	match := reg.FindSubmatch([]byte(from))
 	if match != nil {
