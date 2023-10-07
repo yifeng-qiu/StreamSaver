@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: dl_backend:v1
+    image: streamsaver:v1
     ports:
       - 1718:1718
     networks:

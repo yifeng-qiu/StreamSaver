@@ -1,4 +1,4 @@
-module github.com/yifeng-qiu/ytdlp_backend
+module github.com/yifeng-qiu/StreamSaver
 
 go 1.18
 

@@ -21,7 +21,7 @@ RUN python3 pyinst.py
 RUN cp dist/* /usr/local/bin/yt-dlp
 
 # Set the working directory in the container to /app
-WORKDIR /usr/src/dl_backend
+WORKDIR /usr/src/StreamSaver
 
 # pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
 COPY go.mod go.sum ./

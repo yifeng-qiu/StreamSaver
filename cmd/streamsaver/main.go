@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/yifeng-qiu/ytdlp_backend/internal/server"
-	"github.com/yifeng-qiu/ytdlp_backend/pkg/downloader"
+	"github.com/yifeng-qiu/StreamSaver/internal/server"
+	"github.com/yifeng-qiu/StreamSaver/pkg/downloader"
 )
 
 var addr = flag.String("addr", ":1718", "http service address")

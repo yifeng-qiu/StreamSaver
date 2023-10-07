@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/yifeng-qiu/ytdlp_backend/pkg/downloader"
-	"github.com/yifeng-qiu/ytdlp_backend/pkg/helper"
+	"github.com/yifeng-qiu/StreamSaver/pkg/downloader"
+	"github.com/yifeng-qiu/StreamSaver/pkg/helper"
 )
 
 // Type RequestHandler associates a dictionary of requests with a DownloadManager
