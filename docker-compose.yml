@@ -12,8 +12,28 @@ services:
     volumes:
       # Host directory : Directory inside container
       - /media/download:/media/download # for download storage
-      - /media/download/hls:/media/hls  # for storing streaming data
+      - hls_data:/media/hls  # for storing streaming data
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    image: streaming_nginx
+    networks:
+      - br_backend
+    ports:
+      - 1719:1719
+    depends_on:
+      - backend
+    volumes:
+      - hls_data:/media/hls
 
 networks:
   br_backend:
     driver: bridge
+
+volumes:
+  hls_data:
+    driver_opts:
+      type: none
+      device: /media/download/hls
+      o: bind

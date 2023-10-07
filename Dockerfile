@@ -2,7 +2,7 @@
 FROM golang:1.21
 
 # Install ffmpeg and python
-RUN apt-get update && apt-get install -y ffmpeg python3-full python3-pip git patch 
+RUN apt-get update && apt-get install -y ffmpeg python3-full python3-pip git patch
 
 # Build yt-dlp
 WORKDIR /usr/src/yt-dlp
@@ -29,9 +29,9 @@ RUN go mod download && go mod verify
 
 # Change to the directory containing the main.go file and build the Go app
 COPY . .
-RUN cd cmd/dl_backend && go build -v -o /usr/local/bin/dl_backend
+RUN cd cmd/streamsaver && go build -v -o /usr/local/bin/streamsaver
 
-# Copy the binary file from the builder stage
+# Copy config files
 RUN mkdir -p /root/.yt-dlp
 COPY ./configs/ytdlp_config /root/.yt-dlp/config
 
@@ -42,13 +42,8 @@ RUN ffmpeg -version
 RUN yt-dlp --version
 
 # Test download the first video uploaded to youtube
-RUN dl_backend&
-RUN curl -iX POST http://localhost:1718 "https://youtu.be/jNQXAC9IVRw?si=kNdzUW09bzCDT6Iw"
-
-# Give it some time to complete the download
-RUN sleep 5 
 RUN ./tests/test_first_download.sh
 
 # Set the command to run when starting the container
-CMD ["dl_backend"]
+CMD ["streamsaver"]
 
