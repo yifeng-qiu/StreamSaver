@@ -1,0 +1,19 @@
+version: "3.6"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dl_backend:v1
+    ports:
+      - 1718:1718
+    networks:
+      - br_backend
+    volumes:
+      # Host directory : Directory inside container
+      - /media/download:/media/download # for download storage
+      - /media/download/hls:/media/hls  # for storing streaming data
+
+networks:
+  br_backend:
+    driver: bridge
