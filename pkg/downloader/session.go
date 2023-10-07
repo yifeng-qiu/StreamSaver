@@ -323,6 +323,7 @@ func StartHLSConversion(input string, output string, video *Video, pid *int) err
 	}
 	cmd := exec.Command("ffmpeg", "-i", input, "-start_number", "0",
 		"-hls_time", "10", "-hls_list_size", "0", "-f", "hls", output, "-loglevel", "error")
+	fmt.Println("Debug: ", cmd.String())
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("error when starting ffmpeg %w", err)
@@ -338,7 +339,7 @@ func StartHLSConversion(input string, output string, video *Video, pid *int) err
 		return fmt.Errorf("error during HLS conversio %w", err)
 	} else {
 		fmt.Printf("Conversion to HLS completed, stored at %s\n", output)
-		unescapedPath := strings.TrimPrefix(output, "/media/download")
+		unescapedPath := strings.TrimPrefix(output, "/media/hls")
 		pathComponents := strings.Split(unescapedPath, "/")
 
 		for i, component := range pathComponents {
@@ -356,7 +357,7 @@ func StartHLSConversion(input string, output string, video *Video, pid *int) err
 func (s *Session) SetupHLSConversion() error {
 	s.currentVideo.Status = VIDEOSTATUS_WAITING_FOR_CONVERSION
 	filename := filepath.Base(s.currentVideo.FileLocation)
-	hlsPath := strings.TrimRight(helper.SHAFromString(filename), "=")
+	hlsPath := strings.TrimSuffix(helper.SHAFromString(filename), "=")
 
 	newFolder := filepath.Join("/media/hls", hlsPath)
 	os.Mkdir(newFolder, 0755)
