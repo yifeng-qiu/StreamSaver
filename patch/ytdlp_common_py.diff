@@ -1,0 +1,7 @@
+349,350d348
+<             if self.params.get('noprogress'):
+<                 self.to_screen('[download] Download completed')
+365c363
+< 
+---
+>             self.to_screen('[download] Download completed')
